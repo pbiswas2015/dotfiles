@@ -1,0 +1,4 @@
+.local/**/.git
+.local/**/.git*
+.config/**/.git
+.config/**/.git*
