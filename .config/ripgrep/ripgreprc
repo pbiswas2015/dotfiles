@@ -1,0 +1,15 @@
+# Settings
+--smart-case
+--hidden
+
+# Max line length
+--max-columns=10000
+
+# Filetypes
+#--type-add='src:include:tcl,py'
+--type-add
+src:*.{tcl,py,pl}
+
+# Exclude
+--glob=!{.git}
+--glob=!{.snapshot}
