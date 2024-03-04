@@ -63,6 +63,15 @@ alias gco='git checkout'
 alias gcl='git clone'
 alias gll='git log --graph --pretty=oneline --abbrev-commit'
 
+# tools
+alias t='tere'
+alias pi='pipr'
+alias o='ouch'
+alias cp='xcp -r'
+alias pc='pipecolor -c ~/.config/pipecolor/config.toml'
+alias yless='jless --yaml'
+alias ungron='gron --ungron'
+
 #############################################################
 # functions
 
@@ -263,6 +272,42 @@ function rgf () {
     --preview 'bat --color=always {1} --style=numbers --line-range=:500 --highlight-line {2}' \
     --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
     --bind 'enter:become(nvim {1} +{2})'
+}
+
+# search for count of expression in each file and choose file to open
+
+function rgc() {
+  rm -f /tmp/rg-fzf-{r,f}
+  RG_PREFIX="rg -c --color=always --smart-case"
+  INITIAL_QUERY="${*:-}"
+  : | fzf --ansi --disabled --height 90% --query "$INITIAL_QUERY" \
+    --bind "start:reload($RG_PREFIX {q})+unbind(ctrl-r)" \
+    --bind "change:reload:sleep 0.1; $RG_PREFIX {q} || true" \
+    --bind "ctrl-f:unbind(change,ctrl-f)+change-prompt(2. fzf> )+enable-search+rebind(ctrl-r)+transform-query(echo {q} > /tmp/rg-fzf-r; cat /tmp/rg-fzf-f)" \
+    --bind "ctrl-r:unbind(ctrl-r)+change-prompt(1. ripgrep> )+disable-search+reload($RG_PREFIX {q} || true)+rebind(change,ctrl-f)+transform-query(echo {q} > /tmp/rg-fzf-f; cat /tmp/rg-fzf-r)" \
+    --color "hl:-1:underline,hl+:-1:underline:reverse" \
+    --prompt '1. ripgrep> ' \
+    --delimiter : \
+    --header '╱ CTRL-R (ripgrep mode) ╱ CTRL-F (fzf mode) ╱' \
+    --preview 'bat --color=always {1} --style=numbers --line-range=:500' \
+    --preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+    --bind 'enter:become(nvim {1})'
+}
+
+# search through fasd file list and filer with fzf to open in nvim
+function ff() {
+  if [ $# == 0 ]; then
+    file_list=`fasd -l -R -f`
+    search_expr=""
+  else
+    search_expr=$1
+  fi
+  fasd -l -R -f | fzf --ansi --height 90% \
+    --query "$search_expr" \
+    --preview 'bat --color=always {1} --style=numbers --line-range=:500' \
+    --bind 'enter:become(nvim {1})' \
+    --bind 'up:preview-half-page-up,down:preview-half-page-down'
+    --bind 'up:preview-half-page-up,down:preview-half-page-down'
 }
 
 #############################################################
