@@ -1,0 +1,46 @@
+[style.description]
+underline = false
+bold = true
+italic = false
+
+[style.command_name]
+# color lawngreen
+foreground = { rgb = { r = 124, g = 252, b = 0 } }
+#foreground = "yellow"
+underline = false
+bold = false
+italic = false
+
+[style.example_text]
+# color gold
+foreground = { rgb = { r = 255, g = 215, b = 0 } }
+#foreground = "blue"
+underline = false
+bold = false
+italic = false
+
+[style.example_code]
+# color aqua
+foreground = { rgb = { r = 0, g = 255, b = 255 } }
+#foreground = "cyan"
+underline = false
+bold = false
+italic = false
+
+[style.example_variable]
+# color fushia
+foreground = { rgb = { r = 255, g = 0, b = 255 } }
+# foreground = "magenta"
+underline = false
+bold = false
+italic = false
+
+[display]
+compact = false
+use_pager = true
+
+[updates]
+auto_update = true
+auto_update_interval_hours = 720
+
+[directories]

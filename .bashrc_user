@@ -6,8 +6,8 @@ alias nuser='nvim ~/.bashrc_user'
 ###############################################################################
 
 export EDITOR=nvim
-export PATH=/home/pbiswas/.local/bin:${PATH}
-export MANPATH=/home/pbiswas/.local/share/man:${MANPATH}
+export PATH=~/.local/bin:${PATH}
+export MANPATH=~/.local/share/man:${MANPATH}
 
 ###############################################################################
 

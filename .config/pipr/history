@@ -1,0 +1,7 @@
+fd | rg test
+---
+fd | rg hello
+---
+l
+---
+ll
