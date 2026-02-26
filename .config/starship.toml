@@ -1,3 +1,5 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
 [aws]
 symbol = "  "
 
@@ -167,16 +169,16 @@ symbol = " "
 [time]
 disabled = false
 style='#4682b4'
-format = '🕙[\[ $time \]]($style) '
+format = '[\[ $time \]]($style) '
 time_format = '%b %d %T'
 
 [git_commit]
 commit_hash_length = 4
-tag_symbol = '🔖 '
+tag_symbol = '  '
 
 [git_state]
 format = '[\($state( $progress_current of $progress_total)\)]($style) '
-cherry_pick = '[🍒 PICKING](bold red)'
+cherry_pick = '[PICKING](bold red)'
 
 [custom.load]
 command = 'uptime | cut -d "," -f4'
