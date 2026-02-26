@@ -16,26 +16,29 @@ alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
 
-alias c='clear'
 
 alias ls='ls --color=auto'
-alias ll='ls -lart'
+alias lt='ls -ltra'
+alias la='ls -ltra'
 alias l1='ls -1rt'
 alias lg='ls -lrta | grep -i'
-alias cl='clear;ls'
 
 # eza
 eza_path=`which eza 2> /dev/null`
 if [[ -f $eza_path ]]; then
   alias ll="eza -l -a -g --icons --git -s time"
-  alias llt="eza -1 -a --icons --tree --git-ignore"
+  alias llt="eza -l -a --icons --tree --git-ignore"
   alias llr="eza -l -a -g --recurse --icons --git"
   alias l1="eza -1 -a --icons --git"
   alias lg='ll | rg -i'
   alias cl='clear;eza'
 fi
 
-#alias pf='readlink -f'
+alias c='clear'
+alias cl='clear;ls'
+
+alias pf='readlink -f'
+alias rp='readlink -f'
 
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -53,10 +56,10 @@ alias h25='history 25'
 alias tk='tkdiff'
 
 # dust
-alias du1='dust -r -d 1'
-alias du2='dust -r -d 2'
-alias du1r='dust -d 1'
-alias du2r='dust -d 2'
+alias du1='dust -r --threads 2 -d 1'
+alias du2='dust -r --threads 2 -d 2'
+alias du1r='dust --threads 2 -d 1'
+alias du2r='dust --threads 2 -d 2'
 
 # git
 alias gco='git checkout'
@@ -74,7 +77,7 @@ alias ungron='gron --ungron'
 
 #############################################################
 # functions
-
+# hs - history search
 unalias hs 2> /dev/null
 function hs() {
     if [ $# == 0 ]; then
@@ -85,6 +88,8 @@ function hs() {
     fi 
 }
 
+#############################################################
+# pf - get file realpath with fzf
 unalias pf 2> /dev/null
 function pf() {
     # No arguments
@@ -107,12 +112,16 @@ function pf() {
     echo " ${abs_path}"
 }
 
+#############################################################
+# pg - search for process by name
 unalias pg 2> /dev/null
 function pg() {
     ps -aux | grep -v " grep " | grep -P -i "^USER|${1}"
 }
 export -f pg > /dev/null
 
+#############################################################
+# fn - get fd like behavious with find
 unalias fn 2> /dev/null
 function fn() {
     if [[ $2 != '' ]]; then
@@ -123,14 +132,17 @@ function fn() {
 }
 export -f fn > /dev/null
 
-# create and cd to directory
+#############################################################
+# mkcd - create and cd to directory
 function mkcd () {
     mkdir -p $1
     cd $1
     echo " $(pwd)"
 }
 
-# fuzzy cd into directory
+#############################################################
+# cdf - fuzzy cd into directory
+unalias cdf 2> /dev/null
 function cdf() {
     cur_dir=`pwd`
     hostname=`hostname`
@@ -154,20 +166,22 @@ alias cd2='cdf 2'
 alias cd3='cdf 3'
 alias cd4='cdf 4'
 
-# fuzzy open files
+#############################################################
+# gf - fuzzy open files in gvim
+unalias gf 2> /dev/null
 function gf() {
-	  if [ -z $TMUX  ]; then
+    if [ -z $TMUX  ]; then
         fzf_cmd="fzf -m"
     else
         fzf_cmd="fzf-tmux -m"
     fi
     if [[ $1 != '' ]]; then
-        fval=$(fd -E .snapshot/ -t f -H -d $1| $fzf_cmd) || return
-        echo "nvim $fval"
+        fval=$(fd -E .snapshot/ -t f -H -d $1| $fzf_cmd -preview 'bat --color=always --style=numbers --line-range=:500 {}') || return
+        echo "gvim $fval"
         g $fval
     else
-        fval=$(fd -E .snapshot/ -t f -H | $fzf_cmd) || return
-        echo "nvim $fval"
+        fval=$(fd -E .snapshot/ -t f -H | $fzf_cmd --preview 'bat --color=always --style=numbers --line-range=:500 {}') || return
+        echo "gvim $fval"
         g $fval
     fi
 }
@@ -176,18 +190,21 @@ alias gf2='gf 2'
 alias gf3='gf 3'
 alias gf4='gf 4'
 
+#############################################################
+# nf - fuzzy open files in nvim
+unalias nf 2> /dev/null
 function nf() {
-	  if [ -z $TMUX  ]; then
+    if [ -z $TMUX  ]; then
         fzf_cmd="fzf -m"
     else
         fzf_cmd="fzf-tmux -m"
     fi
     if [[ $1 != '' ]]; then
-        fval=$(fd -E .snapshot/ -t f -H -d $1| $fzf_cmd) || return
+        fval=$(fd -E .snapshot/ -t f -H -d $1| $fzf_cmd --preview 'bat --color=always --style=numbers --line-range=:500 {}') || return
         echo "nvim $fval"
         n $fval
     else
-        fval=$(fd -E .snapshot/ -t f -H | $fzf_cmd) || return
+        fval=$(fd -E .snapshot/ -t f -H | $fzf_cmd --preview 'bat --color=always --style=numbers --line-range=:500 {}') || return
         echo "nvim $fval"
         n $fval
     fi
@@ -197,6 +214,9 @@ alias nf2='nf 2'
 alias nf3='nf 3'
 alias nf4='nf 4'
 
+#############################################################
+# vf - fuzz view files
+unalias vf 2> /dev/null
 function vf() {
 	  if [ -z $TMUX  ]; then
         fzf_cmd="fzf"
@@ -204,10 +224,10 @@ function vf() {
         fzf_cmd="fzf-tmux"
     fi
     if [[ $1 != '' ]]; then
-        fval=$(fd -E .snapshot/ -t f -H -d $1| $fzf_cmd) || return
+        fval=$(fd -E .snapshot/ -t f -H -d $1| $fzf_cmd -preview 'bat --color=always --style=numbers --line-range=:500 {}') || return
         v $fval
     else
-        fval=$(fd -E .snapshot/ -t f -H | $fzf_cmd) || return
+        fval=$(fd -E .snapshot/ -t f -H | $fzf_cmd -preview 'bat --color=always --style=numbers --line-range=:500 {}') || return
         v $fval
     fi
 }
@@ -216,7 +236,9 @@ alias vf2='vf 2'
 alias vf3='vf 3'
 alias vf4='vf 4'
 
-# fuzzy list directories/files
+#############################################################
+# lf - fuzzy list directories/files
+unalias lf 2> /dev/null
 function lf() {
   cur_dir=`pwd`
 	if [ -z $TMUX  ]; then
@@ -237,6 +259,9 @@ function lf() {
   done
 }
 
+#############################################################
+# rgf - old version
+unalias rgf_old 2> /dev/null
 function rgf_old() {
   # 1. Search for text in files using ripgrep
   # 2. Interactively narrow down the list using fzf
@@ -250,6 +275,9 @@ function rgf_old() {
       --bind 'enter:become(nvim {1} +{2})'
 } 
 
+#############################################################
+# rgf - search for files and open them
+unalias rgf 2> /dev/null
 function rgf () {
   # Two-phase filtering with Ripgrep and fzf
   #
@@ -274,8 +302,9 @@ function rgf () {
     --bind 'enter:become(nvim {1} +{2})'
 }
 
-# search for count of expression in each file and choose file to open
-
+#############################################################
+# rgc - search for count of expression in each file and choose file to open
+unalias rgc 2> /dev/null
 function rgc() {
   rm -f /tmp/rg-fzf-{r,f}
   RG_PREFIX="rg -c --color=always --smart-case"
@@ -294,7 +323,9 @@ function rgc() {
     --bind 'enter:become(nvim {1})'
 }
 
-# search through fasd file list and filer with fzf to open in nvim
+#############################################################
+# ff - search through fasd file list and filer with fzf to open in nvim
+unalias ff 2> /dev/null
 function ff() {
   if [ $# == 0 ]; then
     file_list=`fasd -l -R -f`
