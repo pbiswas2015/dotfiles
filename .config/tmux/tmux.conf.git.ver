@@ -12,20 +12,26 @@ set -g terminal-overrides ",xterm-256color:RGB"
 # remap prefix from 'C-b' to 'C-a'
 unbind C-b
 set -g prefix C-a
-bind C-a send-prefix                       # ensure Ctrl-A can be send to other apps
+
+# ensure Ctrl-A can be send to other apps
+bind C-a send-prefix
 
 setw -g xterm-keys on
-set -s escape-time 1                      # faster command sequences
-set -sg repeat-time 600                   # increase repeat timeout
+
+# faster command sequences. set delay between prefix and command
+set -s escape-time 1                      
+
+# increase repeat timeout
+set -sg repeat-time 600
+
 set -s focus-events on
 
-set -q -g status-utf8 on                  # expect UTF-8 (tmux < 2.2)
+# expect UTF-8 (tmux < 2.2)
+set -q -g status-utf8 on
 setw -q -g utf8 on
 
-set -g history-limit 5000                 # boost history
-
-# set delay between prefix and command
-set -s escape-time 0
+# boost history
+set -g history-limit 10000
 
 ###############################################################################
 # navigation
@@ -33,6 +39,7 @@ set -s escape-time 0
 
 # set vi-mode
 setw -g mode-keys vi
+
 # use vim keybindings in copy mode
 bind -T copy-mode-vi v send -X begin-selection
 bind -T copy-mode-vi C-v send -X rectangle-toggle
@@ -42,6 +49,27 @@ bind -T copy-mode-vi H send -X start-of-line
 bind -T copy-mode-vi L send -X end-of-line
 unbind -n MouseDrag1Pane
 unbind -T copy-mode-vi MouseDrag1Pane
+
+# add mouse support
+set -g mouse on
+bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
+bind -n WheelDownPane select-pane -t= \; send-keys -M
+bind -n C-WheelUpPane select-pane -t= \; copy-mode -e \; send-keys -M
+bind -T copy-mode-vi    C-WheelUpPane   send-keys -X halfpage-up
+bind -T copy-mode-vi    C-WheelDownPane send-keys -X halfpage-down
+bind -T copy-mode-emacs C-WheelUpPane   send-keys -X halfpage-up
+bind -T copy-mode-emacs C-WheelDownPane send-keys -X halfpage-down
+
+# Turn the mouse on, but without copy mode dragging
+unbind -n MouseDrag1Pane
+unbind -Tcopy-mode MouseDrag1Pane
+# below are needed for older version of tmux
+#set-option -g mouse-select-window on
+#set-option -g mouse-select-pane on
+#set-option -g mouse-resize-pane on
+# set -> set-option
+# bind -> bind-key
+# display -> display-message
 
 # Update default binding of `Enter` to also use copy-pipe
 bind Enter copy-mode # enter copy mode
@@ -57,6 +85,24 @@ bind -T copy-mode-vi C-c send -X copy-pipe-no-clear "xclip -i -selection-clipboa
 #bind -T copy-mode    C-c send -X copy-pipe-no-clear "xsel -i --clipboard"
 #bind -T copy-mode-vi C-c send -X copy-pipe-no-clear "xsel -i --clipboard"
 bind -T copy-mode-vi MouseDown1Pane send-keys -X clear-selection \; select-pane
+
+# turn mouse on
+set -g mouse on
+# To copy, left click and drag to highlight text in yellow, 
+# once you release left click yellow text will disappear and will automatically be available in clibboard
+#bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
+#bind -n WheelDownPane select-pane -t= \; send-keys -M
+#bind -n C-WheelUpPane select-pane -t= \; copy-mode -e \; send-keys -M
+
+# Toggle mouse on using Alt+m
+bind -n M-m \
+  set -g mouse on \;\
+  display 'Mouse: ON'
+
+# Toggle mouse off using Alt+n
+bind -n M-n \
+  set -g mouse off \;\
+  display 'Mouse: OFF'
 
 # use system clipboard
 set -g set-clipboard on
@@ -76,7 +122,13 @@ bind -r C-l select-window -t :+
 bind -n C-S-Left swap-window -t -1\; select-window -t -1
 bind -n C-S-Right swap-window -t +1\; select-window -t +1
 
-# pane navigation
+# split panes using | and -, open panes in current directory
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# moving between panes with Prefix h,j,k,l
 bind -r h select-pane -L  # move left
 bind -r j select-pane -D  # move down
 bind -r k select-pane -U  # move up
@@ -84,19 +136,15 @@ bind -r l select-pane -R  # move right
 bind > swap-pane -D       # swap current pane with the next one
 bind < swap-pane -U       # swap current pane with the previous one
 
-# split panes using | and -, open panes in current directory
-bind | split-window -h -c "#{pane_current_path}"
-bind - split-window -v -c "#{pane_current_path}"
-unbind '"'
-unbind %
+# switch panes using Alt-arrow without prefix
+#bind -n M-Left select-pane -L
+#bind -n M-Right select-pane -R
+#bind -n M-Up select-pane -U
+#bind -n M-Down select-pane -D
 
-# turn mouse on
-set -g mouse on
-# To copy, left click and drag to highlight text in yellow, 
-# once you release left click yellow text will disappear and will automatically be available in clibboard
-#bind -n WheelUpPane if-shell -F -t = "#{mouse_any_flag}" "send-keys -M" "if -Ft= '#{pane_in_mode}' 'send-keys -M' 'select-pane -t=; copy-mode -e; send-keys -M'"
-#bind -n WheelDownPane select-pane -t= \; send-keys -M
-#bind -n C-WheelUpPane select-pane -t= \; copy-mode -e \; send-keys -M
+# quick window selection using Ctrl-h and Ctrl-l
+bind -r C-h select-window -t :-
+bind -r C-l select-window -t :+
 
 # toggle synchronize-panes
 bind C-b set-window-option synchronize-panes
@@ -104,19 +152,26 @@ bind C-b set-window-option synchronize-panes
 # open new windows in the current path
 bind c new-window -c "#{pane_current_path}"
 
-# resize panes using 
+# resize panes using Ctrl-H, Ctrl-J, Ctrl-K, Ctrl-L
 bind -r H resize-pane -L 5
 bind -r J resize-pane -D 5
 bind -r K resize-pane -U 5
 bind -r L resize-pane -R 5
 
+# enable vi keys
+setw -g mode-keys vi
+
 ###############################################################################
 # display
 ###############################################################################
 
-# start pane and window index at 1, not 0 
-set -g base-index 1           # start windows numbering at 1
-setw -g pane-base-index 1     # make pane numbering consistent with windows
+# start pane and window numbering from 1 instead of 0
+set -g base-index 1
+set -g pane-base-index 1
+
+# move window/tabs with Ctrl+Shift+Left, Ctrl+Shift+Right
+bind-key -n C-S-Left swap-window -t -1\; select-window -t -1
+bind-key -n C-S-Right swap-window -t +1\; select-window -t +1
 
 setw -g automatic-rename on   # rename window to reflect current program
 set -g renumber-windows on    # renumber windows when a window is closed
@@ -128,11 +183,18 @@ set -g display-panes-time 800 # slightly longer pane indicators display time
 set -g display-time 1000      # slightly longer status messages display time
 
 set -g status-interval 10     # redraw status line every 10 second
+# set default terminal mode to 256 colors
+set -g default-terminal "screen-256color"
+
+###############################################################################
+### DESIGN CHANGES ###
+###############################################################################
 
 # no sound
 set -g visual-bell off
 set -g visual-silence off
-set -g bell-action none       # no bells at all
+# no bells at all
+set -g bell-action none
 
 #  modes
 setw -g clock-mode-colour colour6
@@ -147,15 +209,14 @@ setw -g window-style 'fg=colour41,bg=colour232 dim'
 setw -g window-active-style 'fg=colour46,bg=colour233'
 
 # statusbar
-# set -g status-position top
-# set -g status-justify left
-# set -g status-style 'bg=colour235 fg=colour123'
-# set -g status-left '#[fg=colour46] #S#[fg=colour33]@#[fg=colour220]#H  '
-# set -g status-right '#[fg=colour73,bg=colour236] #(cat ~/.tmux.status)'
-# #set -g status-right '#[fg=colour73,bg=colour236] #(cat ~/.tmux.status) #[fg=colour105,bg=colour237] %m/%d #[fg=colour36,bg=colour236] %H:%M:%S'
-# set -g status-right-length 350
-# set -g status-left-length 40
-# set -g status-interval 15
+set -g status-position top
+set -g status-justify left
+set -g status-style 'bg=colour235 fg=colour123'
+set -g status-left '#[fg=colour46] #S#[fg=colour33]@#[fg=colour220]#H  '
+set -g status-right '#[fg=colour73,bg=colour236] #(cat ~/.tmux.status) #[fg=colour105,bg=colour237] %m/%d/%y #[fg=colour36,bg=colour236] %H:%M:%S '
+set -g status-right-length 350
+set -g status-left-length 40
+set -g status-interval 15
 
 # active window/tab
 setw -g window-status-current-style 'fg=colour51 bg=colour64 bold'
@@ -168,7 +229,7 @@ setw -g window-status-format ' #I#[fg=colour228]:#[fg=colour227]#W#[fg=colour228
 # enable activity alerts
 set -g visual-activity off
 setw -g monitor-activity on
-#setw -g window-status-activity-style 'fg=colour124 bg=colour100 bold'
+setw -g window-status-activity-style 'fg=colour124 bg=colour100 bold'
 #setw -g window-status-activity-format ' #I:#[fg=colour164]#W#F '
 
 # messages
