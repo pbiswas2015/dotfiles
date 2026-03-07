@@ -1,0 +1,3 @@
+_FASD_IGNORE="fasd ls echo cd"
+_FASD_TRACK_PWD=0
+_FASD_SINK="${HOME}/.fasd.log"
