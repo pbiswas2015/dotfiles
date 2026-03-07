@@ -1,0 +1,35 @@
+
+###############################################################################
+# homebrew
+[ -f ~/.brew-init.bash ] && source ~/.brew-init.bash
+# opt out of analytics
+export HOMEBREW_NO_ANALYTICS=1
+# brew analytics off
+
+###############################################################################
+# rust and cargo
+if [ -f ~/.cargo/env ]; then
+  . "$HOME/.cargo/env"
+fi
+
+###############################################################################
+# custom bin directory and manpath
+export PATH=~/.local/bin:${PATH}
+# not needed. manpath gets the paths automatically
+#export MANPATH=~/.local/share/man:/home/linuxbrew/.linuxbrew/share/man:${MANPATH}
+
+###############################################################################
+# user settings
+[ -f ~/.bashrc_user ] && source ~/.bashrc_user
+
+###############################################################################
+# alias
+[ -f ~/.alias.bash ] && source ~/.alias.bash
+
+###############################################################################
+# completion
+[ -f ~/.local/share/bash-completion/complete.bash ] && source ~/.local/share/bash-completion/complete.bash
+
+###############################################################################
+# vlsi setup
+#source /home/vlsi/scripts/shell/vlsi_setup.sh
