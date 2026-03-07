@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - https://software.repos.intel.com/python/conda/
+  - nvidia
+mirrored_channels:
+  conda-forge:
+    - https://conda.anaconda.org/conda-forge
+    - https://prefix.dev/conda-forge
+# use highest priority channel that has the package
+# strict = don't mix builds from different channels
+channel_priority: strict
